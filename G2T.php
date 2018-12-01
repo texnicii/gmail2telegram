@@ -1,11 +1,14 @@
 <?php
-
+use \unreal4u\TelegramAPI\HttpClientRequestHandler;
+use \unreal4u\TelegramAPI\TgLog;
+use \unreal4u\TelegramAPI\Telegram\Methods\SendMessage;
 /**
  * 
  */
 class G2T{
 
 	const CHAT_STORAGE='chatStorage';
+	const BOT_TOKEN_STORAGE='.bot_token';
 
 	public $googleClient;
 	private $chatDir;
@@ -15,6 +18,11 @@ class G2T{
 		$this->googleClient=self::googleClient($chatDir.'/credentials.json', $chatDir.'/token.json');
 		$this->gmailService=new Google_Service_Gmail($this->googleClient);
 		$this->filter=self::loadFilter($chatDir);
+		if(file_exists($bt=__DIR__.'/'.self::BOT_TOKEN_STORAGE)&&$botToken=file_get_contents($bt)){
+			$loop=\React\EventLoop\Factory::create();
+			$this->httpClient=new HttpClientRequestHandler($loop);
+			$this->telegramService=new TgLog(trim($botToken), $this->httpClient);
+		}
 	}
 
 	static function loadFilter($chatDir) : string{
