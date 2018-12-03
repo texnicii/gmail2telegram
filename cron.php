@@ -21,7 +21,7 @@ function chatList($basedir=__DIR__){
 			echo "[$fileName] Credentials not found\n"; continue;
 		}
 		$G2T=new G2T($chatDir);
-		$msgs=$G2T->listMessages();
+		$msgs=$G2T->listMessages(true);
 		foreach ($msgs as $msg) {
 			echo $msg->subject()."\n";
 		}

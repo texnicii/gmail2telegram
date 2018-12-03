@@ -105,21 +105,19 @@ class G2T{
 		} while ($pageToken);
 
 		if(count($messages))
-			$this->messageOffset(['id'=>$messages[0]->id, 'data'=>$messages[0]->internalDate]);
+			$this->messageOffset(['id'=>$messages[0]->id, 'date'=>$messages[0]->internalDate]);
 		return $messages;
 	}
 
 	public function messageOffset($set=false){
 		$offsetFile=$this->chatDir.'/offset';
 		if($set===false){
-			if(!isset($this->messageOffset)){
-				if(file_exists($offsetFile))
-					$this->messageOffset=json_decode(trim(file_get_contents($offsetFile)));
-				else{
-					$this->messageOffset=new \StdClass;
-					$this->messageOffset->id=0;	
-					$this->messageOffset->date=0;
-				}
+			if(!isset($this->messageOffset)&&file_exists($offsetFile))
+				$this->messageOffset=json_decode(trim(file_get_contents($offsetFile)));
+			if(!is_object($this->messageOffset)){
+				$this->messageOffset=new \StdClass;
+				$this->messageOffset->id=0;	
+				$this->messageOffset->date=0;
 			}
 			return $this->messageOffset;
 		}elseif(is_array($set)){
