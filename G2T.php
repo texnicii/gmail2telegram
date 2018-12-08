@@ -1,7 +1,6 @@
 <?php
-use \unreal4u\TelegramAPI\HttpClientRequestHandler;
-use \unreal4u\TelegramAPI\TgLog;
-use \unreal4u\TelegramAPI\Telegram\Methods\SendMessage;
+use Longman\TelegramBot\Telegram;
+use Longman\TelegramBot\Request;
 /**
  * 
  */
@@ -14,14 +13,13 @@ class G2T{
 	private $chatDir;
 
 	function __construct($chatDir){
+		$this->chatId=basename($chatDir);
 		$this->chatDir=$chatDir;
 		$this->googleClient=self::googleClient($chatDir.'/credentials.json', $chatDir.'/token.json');
 		$this->gmailService=new Google_Service_Gmail($this->googleClient);
 		$this->filter=self::loadFilter($chatDir);
 		if(file_exists($bt=__DIR__.'/'.self::BOT_TOKEN_STORAGE)&&$botToken=file_get_contents($bt)){
-			$loop=\React\EventLoop\Factory::create();
-			$this->httpClient=new HttpClientRequestHandler($loop);
-			$this->telegramService=new TgLog(trim($botToken), $this->httpClient);
+			$this->telegramBot=new Telegram($botToken, '');
 		}
 	}
 
@@ -124,5 +122,13 @@ class G2T{
 			$this->messageOffset=$set;
 			file_put_contents($offsetFile, json_encode($this->messageOffset));
 		}
+	}
+
+	public function sendToTelegram($msg){
+		$res=Request::sendMessage([
+			'chat_id'=>$this->chatId,
+			'text'=>$msg,
+		]);
+		return $res;
 	}
 }
